@@ -1,24 +1,27 @@
 #pragma once
 #include <string>
 #include <algorithm>
-#include <list>
+#include <vector>
 #include "Connection.h"
-
+#include "UDPSocket.h"
 using namespace std;
+
+#define THROWS(e)  
 class Router
 {
 private:
-	list<Connection>connections;
-	SOCKADDR_IN server_address;
-	SOCKADDR_IN router_address;
+	vector<Connection*>connections;
+	SOCKADDR_IN serverAddress;
+	UDPSocket routerSocket;
+	double mDropRate;
+	double mDelayedRate;
 
-	bool setUp(int localPort, string serverAddress, int serverPort);
-	void tearDown();
-	bool runLoop();
+	void setUp(int localPort, string serverAddress, int serverPort)THROWS(std::exception);
+	void runLoop();
 
 public:
-	bool Start(int localPort, string serverAddress, int serverPort);
-	Router();
+	void Start(int localPort, string serverName, int serverPort)THROWS(std::exception);
+	Router(double dropRate, double delayedRate);
 	~Router(void);
 };
 

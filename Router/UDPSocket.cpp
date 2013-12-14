@@ -1,5 +1,4 @@
 #include "UDPSocket.h"
-#include "Log.h"
 #pragma comment (lib,"Ws2_32.lib")
 
 UDPSocket::UDPSocket()
@@ -16,15 +15,14 @@ UDPSocket::~UDPSocket(void)
 bool UDPSocket::Bind(int localPort)
 {
 	struct sockaddr_in address;
+	bzero(&address,sizeof(address));
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 	address.sin_port = htons(localPort);
 	int iResult = ::bind(sock, (struct sockaddr*)&address,sizeof(address));
 	if (iResult == SOCKET_ERROR) {
-		LOG_ERROR << "Unable to bind UDP Socket to port: " << localPort << endl;
 		return false;
 	}else{
-		LOG_INFO << "Bind UDP Socket to port " << localPort << endl;
 		return true;
 	}
 }
@@ -47,23 +45,21 @@ int UDPSocket::Receive(char* buffer,unsigned int sz, SOCKADDR_IN* sender, int ti
 	SOCKADDR *addr_ptr = (sender == NULL) ? NULL: (SOCKADDR*)sender;
 
 	int result = ::recvfrom(sock,buffer,sz,0,addr_ptr,&addr_sz);
-	if(result < 0){
-		LOG_ERROR << "Unable to receive packet " << result << endl;
-	}
 	return result;
 }
 
-bool UDPSocket::Send(const char*buffer,unsigned int sz, SOCKADDR_IN destination)
+int UDPSocket::Send(const char*buffer,unsigned int sz, SOCKADDR_IN* destination)
 {
-	int result = ::sendto(sock,buffer,sz,0,(SOCKADDR*)&destination,sizeof(destination));
-	if(result < 0){
-		LOG_ERROR << "Unable to send UDP Packet " << endl;
-		return false;
-	}
-	return true;
+	int result = ::sendto(sock,buffer,sz,0,(SOCKADDR*)destination,sizeof(SOCKADDR_IN));
+	return result;
 }
 
 void UDPSocket::Close()
 {
 	closesocket(sock);
+}
+
+SOCKET UDPSocket::GetSocket()
+{
+	return sock;
 }

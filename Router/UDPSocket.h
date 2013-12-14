@@ -2,6 +2,9 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 
+//Clear buffer macro
+#define UDP_PACKET_SIZE 4096
+#define bzero(ptr,sz) memset(ptr,0,sz)
 class UDPSocket
 {
 private:
@@ -15,7 +18,7 @@ public:
 	bool Bind(int localPort);
 
 	//UDP send
-	bool Send(const char*buffer,unsigned int sz, SOCKADDR_IN destination);
+	int Send(const char*buffer,unsigned int sz, SOCKADDR_IN* destination);
 
 	//Receive data. Data will be overwrite to buffer
 	//If you do not want to receive sender address, pass NULL
@@ -27,5 +30,8 @@ public:
 
 	//Close socket. Release resource
 	void Close();
+
+	//Get FDS
+	SOCKET GetSocket();
 };
 
