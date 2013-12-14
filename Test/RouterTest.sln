@@ -2,10 +2,18 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MServer", "MServer\MServer.vcxproj", "{11A8E96E-F91F-4EC8-B28F-34D395DF4399}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AC87A01C-36D4-497A-BCC7-B8A45A2AF997} = {AC87A01C-36D4-497A-BCC7-B8A45A2AF997}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SServer", "SServer\SServer.vcxproj", "{63FACD48-BBAC-4E89-8F0F-9F851EAC1B0B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcxproj", "{0E80F55E-14D7-4D52-934E-68D86A201C8C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AC87A01C-36D4-497A-BCC7-B8A45A2AF997} = {AC87A01C-36D4-497A-BCC7-B8A45A2AF997}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Util", "Util\Util.vcxproj", "{AC87A01C-36D4-497A-BCC7-B8A45A2AF997}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +33,10 @@ Global
 		{0E80F55E-14D7-4D52-934E-68D86A201C8C}.Debug|Win32.Build.0 = Debug|Win32
 		{0E80F55E-14D7-4D52-934E-68D86A201C8C}.Release|Win32.ActiveCfg = Release|Win32
 		{0E80F55E-14D7-4D52-934E-68D86A201C8C}.Release|Win32.Build.0 = Release|Win32
+		{AC87A01C-36D4-497A-BCC7-B8A45A2AF997}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AC87A01C-36D4-497A-BCC7-B8A45A2AF997}.Debug|Win32.Build.0 = Debug|Win32
+		{AC87A01C-36D4-497A-BCC7-B8A45A2AF997}.Release|Win32.ActiveCfg = Release|Win32
+		{AC87A01C-36D4-497A-BCC7-B8A45A2AF997}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

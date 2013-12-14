@@ -78,6 +78,11 @@
   <ItemGroup>
     <ClCompile Include="SServer.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Util\Util.vcxproj">
+      <Project>{ac87a01c-36d4-497a-bcc7-b8a45a2af997}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
