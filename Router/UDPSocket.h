@@ -1,11 +1,12 @@
 #pragma once
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-
+#include <string>
+#include <memory>
 #define UDP_PACKET_SIZE 4096
 #define bzero(ptr,sz) memset(ptr,0,sz)
 
-
+using namespace std;
 //////////////////////////////////////////////////////////////////////////
 //Supported macros for function or method
 #define IN		//Parameter in
@@ -42,5 +43,6 @@ public:
 
 	//Get FDS
 	SOCKET GetSocket();
+	static shared_ptr<SOCKADDR_IN> GetAddress(std::string hostname,int port);
 };
 

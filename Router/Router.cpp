@@ -24,14 +24,10 @@ void Router::Start(int localPort, string serverName, int serverPort)THROWS(std::
 	}
 
 	//Resolution server address
-	HOSTENT* hp = gethostbyname(serverName.c_str());
-	if(NULL == hp){
-		throw std::exception("Server is unreachable");
+	serverAddress = UDPSocket::GetAddress(serverName,serverPort);
+	if(serverAddress == NULL){
+		throw exception("Unable to contact server");
 	}
-	bzero(&serverAddress,sizeof(serverAddress));
-	memcpy(&serverAddress.sin_addr,hp->h_addr,hp->h_length);
-	serverAddress.sin_port = htons(serverPort);
-	serverAddress.sin_family = hp->h_addrtype;
 
 	//Ready to rock
 	for (;;){
@@ -49,8 +45,8 @@ void Router::Start(int localPort, string serverName, int serverPort)THROWS(std::
 			}
 			//Create new connection
 			if(pConn == NULL){
-				LOG_DEBUG << "Client new connection" << endl;
-				pConn = new VirtualPath(&routerSocket,&client_addr,&serverAddress,mDropRate,mDelayedRate);
+				LOG_DEBUG << "Client new route" << endl;
+				pConn = new VirtualPath(&routerSocket,&client_addr,serverAddress.get(),mDropRate,mDelayedRate);
 				connections.push_back(pConn);
 				pConn->Start();
 			}

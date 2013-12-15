@@ -11,6 +11,9 @@ VirtualPath::VirtualPath(UDPSocket* router,SOCKADDR_IN* client, SOCKADDR_IN* ser
 	memcpy(&server_address,server,sizeof(server_address));
 	isRunning = 0;
 	mDelayedTurns = 0;
+	client_packets = 0;
+	server_packets = 0;
+	delayedPacket.beingDelayed = false;
 }
 
 
@@ -60,23 +63,23 @@ string VirtualPath::sourceOfRoute(PacketRoute route)
 	switch (route)
 	{
 	case ClientToParentServer:
-		source = "Client";
+		source = "client";
 		break;
 
 	case ClientToChildServer:
-		source = "Client";
+		source = "client";
 		break;
 
 	case ParentServerToClient:
-		source = "Server";
+		source = "server";
 		break;
 
 	case ChildServerToClient:
-		source = "Server";
+		source = "server";
 		break;
 
 	default:
-		source = "Unknown";
+		source = "unknown";
 		break;
 	}
 	return source;
@@ -88,23 +91,23 @@ string VirtualPath::destinationOfRoute(PacketRoute route)
 	switch (route)
 	{
 	case ClientToParentServer:
-		dest = "Server";
+		dest = "server";
 		break;
 
 	case ClientToChildServer:
-		dest = "Server";
+		dest = "server";
 		break;
 
 	case ParentServerToClient:
-		dest = "Client";
+		dest = "client";
 		break;
 
 	case ChildServerToClient:
-		dest = "Client";
+		dest = "client";
 		break;
 
 	default:
-		dest = "Unknown";
+		dest = "unknown";
 		break;
 	}
 	return dest;
@@ -118,9 +121,11 @@ bool VirtualPath::forwardDelayedPacket()
 		if(mDelayedTurns > 3){
 			PacketRoute route = delayedPacket.route;
 			UDPSocket *pSock = socketOfRoute(route);
+			string source = sourceOfRoute(route);
+			string dest = destinationOfRoute(route);
 			delayedPacket.beingDelayed = false;
-			LOG_INFO << "Send delayed packet" << endl;
 			pSock->Send(delayedPacket.buffer,delayedPacket.packetSize,&delayedPacket.destAddr);
+			LOG_INFO << "Forward delayed packet " + to_string(delayedPacket.packetNumber) + " from " + source + " to " + dest + "!\n";
 			mDelayedTurns = 0;
 		}
 	}
@@ -131,10 +136,12 @@ void VirtualPath::processClientPacket()
 {
 	SOCKADDR_IN addr;
 	char buffer[UDP_PACKET_SIZE];
-	int sz = client_socket.Receive(buffer,UDP_PACKET_SIZE,&addr,0);
+	int sz = client_socket.Receive(buffer,UDP_PACKET_SIZE,&addr);
 	if(sz > 0){
 		memcpy(&client_address,&addr,sizeof(addr));
 		processPacket(buffer,sz,&server_address,PacketRoute::ClientToChildServer);
+	}else{
+		LOG_DEBUG << "Error while receiving packets from client\n";
 	}
 }
 
@@ -142,7 +149,7 @@ void VirtualPath::processServerPacket()
 {
 	SOCKADDR_IN addr;
 	char buffer[UDP_PACKET_SIZE];
-	int sz = server_socket.Receive(buffer,UDP_PACKET_SIZE,&addr,0);
+	int sz = server_socket.Receive(buffer,UDP_PACKET_SIZE,&addr);
 	if(sz > 0){
 		memcpy(&server_address,&addr,sizeof(server_address));
 		if(server_address.sin_port == default_server.sin_port){
@@ -150,6 +157,8 @@ void VirtualPath::processServerPacket()
 		}else{
 			processPacket(buffer,sz,&client_address,PacketRoute::ChildServerToClient);
 		}
+	}else{
+		LOG_DEBUG << "Error while receiving packets from client\n";
 	}
 }
 
@@ -171,17 +180,18 @@ void VirtualPath::processPacket(const char* buffer,int sz,SOCKADDR_IN* addr, Pac
 		++server_packets;
 		packet_number = server_packets;
 	}
+	LOG_DEBUG << "Router received packet " + to_string(packet_number) + " from " + source + "\n";
 
 	//Forward the delayed packet if needed
 	bool hasDelayedPacket = forwardDelayedPacket();
 
 	//Dropping packet
 	if(isDamage()){
-		LOG_INFO<< "Packet " + to_string(packet_number) + " received from " + source + " has been dropped by router!\n";
+		LOG_INFO<< "Packet " + to_string(packet_number) + " from " + source + " has been dropped by router!\n";
 
 	//Delay packet
 	}else if(!hasDelayedPacket && isDelayed()){
-		LOG_INFO<< "Packet " + to_string(packet_number) + " received from " + source + " has been delayed by router!\n";
+		LOG_INFO<< "Packet " + to_string(packet_number) + " from " + source + " has been delayed by router!\n";
 		std::lock_guard<mutex>lock(delayedMutex);
 		delayedPacket.beingDelayed = true;
 		delayedPacket.route = route;
@@ -202,12 +212,16 @@ void VirtualPath::processPacket(const char* buffer,int sz,SOCKADDR_IN* addr, Pac
 
 void VirtualPath::runLoop()
 {
-	//Waiting for both packet
+
+	bool client_priority = false;
+	SOCKET client_fd = client_socket.GetSocket();
+	SOCKET server_fd = server_socket.GetSocket();
+
 	for (;isRunning;){
 		FD_SET readfds;
 		FD_ZERO(&readfds);
-		FD_SET(client_socket.GetSocket(),&readfds);
-		FD_SET(server_socket.GetSocket(),&readfds);
+		FD_SET(client_fd,&readfds);
+		FD_SET(server_fd,&readfds);
 		TIMEVAL timeval;
 		timeval.tv_sec = 0 ;
 		timeval.tv_usec = CYCLE_TIME * 1000; 
@@ -215,15 +229,33 @@ void VirtualPath::runLoop()
 
 		//New packet arrived
 		if(0 < availablefds){
-			//Packet from server
-			if(FD_ISSET(client_socket.GetSocket(),&readfds)){
-				processClientPacket();
+
+			//Neither client or server should be given a higher priority but equally
+			//If packet from server then next packet will likely come from opposite site
+			//To reduce the waiting time, the priority will be toggled for each new packet
+
+			//Client is given higher priority
+			if(client_priority){
+				if(FD_ISSET(client_fd,&readfds)){
+					processClientPacket();
+					client_priority = false;
+				}
+				if(FD_ISSET(server_fd,&readfds)){
+					processServerPacket();
+				}
+
+			//Server is given higher priority
+			}else{
+				if(FD_ISSET(server_fd,&readfds)){
+					processServerPacket();
+					client_priority = true;
+				}
+				if(FD_ISSET(client_fd,&readfds)){
+					processClientPacket();
+				}
 			}
 
-			//Packet from client
-			if(FD_ISSET(server_socket.GetSocket(),&readfds)){
-				processServerPacket();
-			}
+		//No packet received, check to forward delayed packet
 		}else{
 			forwardDelayedPacket();
 		}
@@ -234,19 +266,21 @@ void VirtualPath::runLoop()
 
 bool VirtualPath::CompareSocketAddress(SOCKADDR_IN* addr)
 {
-	return(client_address.sin_port == addr->sin_port && client_address.sin_addr.S_un.S_addr == addr->sin_addr.S_un.S_addr);
+	return(client_address.sin_port == addr->sin_port 
+		&& client_address.sin_addr.S_un.S_addr == addr->sin_addr.S_un.S_addr);
 }
 
 bool VirtualPath::isDamage()
 {
+	//Randomize new algorithm
 	static std::default_random_engine e;
 	static std::uniform_int_distribution<int>d(1,10000);
-	return d(e) <= mDropRate;
+	return d(e) <= (mDropRate * 100);
 }
 
 bool VirtualPath::isDelayed()
 {
 	static std::default_random_engine e;
 	static std::uniform_int_distribution<int>d(1,10000);
-	return d(e) <= mDelayRate;
+	return d(e) <= (mDelayRate * 100);
 }

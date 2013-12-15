@@ -11,7 +11,7 @@ class Router
 {
 private:
 	vector<VirtualPath*>connections;
-	SOCKADDR_IN serverAddress;
+	shared_ptr<SOCKADDR_IN> serverAddress;
 	UDPSocket routerSocket;
 	double mDropRate;
 	double mDelayedRate;

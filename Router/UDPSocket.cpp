@@ -63,3 +63,17 @@ SOCKET UDPSocket::GetSocket()
 {
 	return sock;
 }
+
+shared_ptr<SOCKADDR_IN> UDPSocket::GetAddress(std::string hostname,int port)
+{
+	//Resolution server address
+	HOSTENT* hp = gethostbyname(hostname.c_str());
+	if(NULL == hp){
+		return NULL;
+	}
+	shared_ptr<SOCKADDR_IN>pAddr(new SOCKADDR_IN());
+	memcpy(&pAddr->sin_addr,hp->h_addr,hp->h_length);
+	pAddr->sin_port = htons(port);
+	pAddr->sin_family = hp->h_addrtype;
+	return pAddr;
+}
