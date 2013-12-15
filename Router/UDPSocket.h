@@ -2,9 +2,18 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 
-//Clear buffer macro
 #define UDP_PACKET_SIZE 4096
 #define bzero(ptr,sz) memset(ptr,0,sz)
+
+
+//////////////////////////////////////////////////////////////////////////
+//Supported macros for function or method
+#define IN		//Parameter in
+#define OUT		//Parameter out
+#define INOUT	//Parameter in & out
+#define THROWS(e)
+
+
 class UDPSocket
 {
 private:

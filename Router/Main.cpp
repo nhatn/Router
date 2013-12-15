@@ -12,7 +12,7 @@ int main(int args, char**argv)
 	int result = WSAStartup(MAKEWORD(2,2), &wsaData);
 	if(result == 0){
 		try{
-			Router router(0,0);
+			Router router(5,0);
 			router.Start(ROUTER_PORT,SERVER_ADDR,SERVER_PORT);
 		}catch(std::exception&e ){
 			LOG_ERROR << "Error: " << e.what() << endl;

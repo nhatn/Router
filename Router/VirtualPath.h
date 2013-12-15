@@ -4,27 +4,30 @@
 #include <mutex>
 #include <chrono>
 #include <random>
-
+#include <string>
 
 using namespace std;
-enum Destination
+
+enum PacketRoute
 {
-	Client = 0,
-	Server = 1
+	ClientToParentServer = 0,
+	ClientToChildServer  = 1,
+	ParentServerToClient = 2,
+	ChildServerToClient  = 3
 };
 
 struct DelayPacket
 {
 	char buffer[UDP_PACKET_SIZE];	//Data of packet
 	int packetSize;
-	Destination dest;				//Destination
-	SOCKADDR_IN dest_addr;			//The address can be changed
+	PacketRoute route;				//Packet Route
+	SOCKADDR_IN destAddr;			//The address can be changed
 	bool beingDelayed;				//Packet status, true means it's being delayed otherwise means empty
 	long packetNumber;				//The packet number for tracking
-	chrono::time_point<chrono::system_clock> timestamp; //Start delayed time
 };
 
-class Connection
+
+class VirtualPath
 {
 private:
 	volatile int isRunning;
@@ -39,9 +42,13 @@ private:
 	UDPSocket server_socket;	//Is used to communicate with server side
 	long server_packets;
 
+	//Router Socket.
+	UDPSocket* routerSocket;
+
 	//Delayed packet
 	DelayPacket delayedPacket;
 	std::mutex delayedMutex;
+	int mDelayedTurns;
 
 	//Rate
 	double mDropRate;
@@ -54,12 +61,16 @@ private:
 
 	void processClientPacket();
 	void processServerPacket();
-	bool processDelayedPacket();
-	void processPacket(const char* buffer,int sz, SOCKADDR_IN* addr, Destination dest);
+	bool forwardDelayedPacket();
+	void processPacket(const char* buffer,int sz, SOCKADDR_IN* addr, PacketRoute route);
+
+	UDPSocket* socketOfRoute(PacketRoute route);
+	string sourceOfRoute(PacketRoute route);
+	string destinationOfRoute(PacketRoute route);
 
 public:
-	Connection(SOCKADDR_IN* client, SOCKADDR_IN* server, double dropRate, double delayRate);
-	~Connection(void);
+	VirtualPath(UDPSocket*router,SOCKADDR_IN* client, SOCKADDR_IN* server, double dropRate, double delayRate);
+	~VirtualPath(void);
 	void processRouterPacket(char* buffer, int sz);
 	void Start();
 	bool CompareSocketAddress(SOCKADDR_IN* addr);
