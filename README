@@ -1,49 +1,63 @@
-Router Simulation
+Router Simulator
+=====================
 
-This simulation is used to verify Reliable UDP Implementation such Go Back N or Sliding Window.
-It actually works like a Proxy or NAT not the real Router.
+This simulation is used to verify **Reliable UDP Implementation** such Go Back N or Sliding Window.
+> It actually works like a Proxy or NAT not the real Router.
 You can set up the drop rate or delayed rate.
 The goal is to be able to "PUT" the Router between any UDP Server - Client application without modifying
 
-How does it work?
+----------
+**How does it work?**.
+
 1. The Router will be binding to specific port (ROUTER_PORT)
 2. You will be asked to provide Host Name & Port Number of UDP Server Application
 3. Now instead of talking directly to you UDP Server Application, you will talk through Router
 
-Structure:
-There will be three kinds of sockets
-- Router Socket: This socket is on behalf of the Main UDP Server Socket
-- Client Socket: The socket is created when new packet from Client to Router Socket. 
-  This socket is simulated the UDP Socket from Server Application.
-  (The server can fork another socket to communicate with the client instead of using the Main UDP Socket)
-- Server Socket: The socket is simulated the Client Application UDP Socket
+**Structure**
 
-Communication:
-- The Client Socket is used to send & receive packets from client;
-- The Server Socket is used to send & receive packets from server. 
+There will be three kinds of sockets
+
+1. **Router Socket:** This socket is on behalf of the Main UDP Server Socket
+
+2. **Client Socket:** The socket is created when new packet from Client to Router Socket. 
+  This socket is simulated the UDP Socket from Server Application.
+  >Server can fork another socket to communicate with the client instead of using the Main UDP Socket
+
+3. **Server Socket:** The socket is simulated the Client Application UDP Socket
+
+**Communication**
+
+- The Client Socket is used to send & receive packets from client
+
+- The Server Socket is used to send & receive packets from server
+
 - The Router Socket is used to receive packets from server
 
-Flow:
-1. Router Socket 
+**Flow**
+
+**1. Router Socket** 
+
 For each packet from client to, the Router will check if there is a virtual circuit for this endpoint or not.
 If there is no virtual circuit for this endpoint, create new one.
 Once the circuit is created (or found if existing),the Router ask the Circuit to deliver the packet to DEFAULT SERVER ENDPOINT
 
-2. Client Socket
+**2. Client Socket**
+
 For each incoming packets from client, this socket first updates the client_address,
 then ask the Server Socket forward packet to the latest server address
 The latest server address can be:
+
 - Default Server Endpoint if Server uses one Endpoint
 - Child Server Endpoint if Server uses multiple Endpoint
 
-3. Server Socket
+**3. Server Socket**
+
 For each incoming packets from server, this socket first updates server_address,
 then ask the Client Socket forward this packet to the latest client address
 The latest client often is the initialized address but users can change
 
-Termination:
+**Issues** 
+
+With current implementation,the Router is unable to release the disconnected virtual path. However, this Router won't be running for a long time, such leaks is still acceptable
 
 
-
-
-  
