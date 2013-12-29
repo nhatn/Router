@@ -1,6 +1,9 @@
 #pragma once
 #include "LogStream.h"
 
+/*
+
+*/
 class LogManager 
 {
 private:

@@ -4,7 +4,7 @@
 #include <memory>
 using namespace std;
 #define ROUTER_PORT 7000
-#define SERVER_PORT 5001
+#define SERVER_PORT 6000
 #define SERVER_ADDR "Xyz"
 
 struct Parameter
@@ -100,6 +100,7 @@ int main(int args, char**argv)
 		gethostname(hostname,256);
 		LOG_INFO << "Router is running at " << hostname << ":" << parameter->routerPort << endl;
 		LOG_INFO << "Server is at " << parameter->serverName << ":" << parameter->serverPort << endl;
+		LOG_INFO << "Drop rate: " << (int)parameter->droppedRate << ", delay rate: " << parameter->delayedRate << endl;
 
 		//Start Router
 		Router router(parameter->droppedRate,parameter->delayedRate);
