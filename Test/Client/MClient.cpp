@@ -59,21 +59,26 @@ int main(int argc, char* argv[])
 			UDPSocket socket;
 			SOCKADDR_IN transceiver_addr;
 			int packet_number = 0;
-			int sz = socket.Send(&packet_number,sizeof(int),&listen_addr);
-			cout << "Send packet " << packet_number << endl;
+			bool success = false;
+			do
+			{
+				int sz = socket.Send(&packet_number,sizeof(int),&listen_addr);
+				cout << "Send packet " << packet_number << endl;
 
-			//Override the address
-			sz = socket.Receive(buffer,UDP_PACKET_SIZE,&transceiver_addr);
-			if(sz >= sizeof(int)){
-				int *p = (int*)buffer;
-				cout << "Receive packet " << *p << endl;
+				sz = socket.Receive(buffer,UDP_PACKET_SIZE,&transceiver_addr,400);
+				if(sz >= sizeof(int)){
+					int *p = (int*)buffer;
+					cout << "Receive packet " << *p << endl;
+					success = true;
+					break;
+				}
+				++packet_number;
+			}while(!success);
 
-				//Ready to rock
-				thread receive_thread(receiveReplies,&socket);
-				receive_thread.detach();
-				sendRequests(&socket,&transceiver_addr);
-			}
-
+			//Ready to rock
+			thread receive_thread(receiveReplies,&socket);
+			receive_thread.detach();
+			sendRequests(&socket,&transceiver_addr);
 		}
 	}
 	WSACleanup();

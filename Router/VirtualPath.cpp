@@ -218,6 +218,8 @@ void VirtualPath::runLoop()
 	SOCKET server_fd = server_socket.GetSocket();
 
 	for (;isRunning;){
+
+		//Check if there are any packets arrived or not?
 		FD_SET readfds;
 		FD_ZERO(&readfds);
 		FD_SET(client_fd,&readfds);
