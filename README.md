@@ -3,11 +3,11 @@
 
 
 
-This simulation is used to verify **Reliable UDP Implementation** such Go Back N
-or Sliding Window. When it receives packets from peer (either client or server),
-it can drop or delay or deliver to other side. The goal of the this simulation
-is to be able to control the network quality without modifying the implemenation
-at peers
+This simulation is used to verify **Reliable UDP Implementations** such as *Go
+Back N* or *Sliding Window*. When it receives packets from a peer (either client
+or server), it can drop, delay or deliver the packet to the other side. The goal
+of this simulation is to be able to control the network quality without
+modifying the implementation at peers.
 
 
 
@@ -16,28 +16,29 @@ at peers
 
 1.  The Router will be waiting for UDP packet at a specific port (ROUTER_PORT)
 
-2.  You will be asked to provide Host Name & Port Number of UDP Server
+2.  You will be asked to provide the Host Name & Port Number of the UDP Server
     Application
 
-3.  All packets between your server & client, will be through the Router instead
-    of talking directly
+3.  All packets between your server & client will be through the Router instead
+    of exchanging directly
 
 
 
 **Structure**
 -------------
 
-There will be three kinds of sockets
+There will be three kinds of socket & the virtual path
 
 1.  **Router Socket:** This socket is on behalf of the Main UDP Server Socket
 
-2.  **Client Socket:** The socket is created when new packet from Client to
-    Router Socket.This socket is simulated the UDP Socket from Server
-    Application.
+2.  **Client Socket:** The socket is created when a new packet from Client
+    arrives at Router Socket. This socket is simulated the UDP Socket from
+    Server Application.
 
 3.  **Server Socket:** The socket is simulated the Client Application Socket
 
-
+4.  **Virtual Path:** a set of path from Client to Router & Router to Server.
+    Each client endpoint will have its own virtual path. (See issue)
 
 **Communication**
 -----------------
@@ -55,11 +56,12 @@ There will be three kinds of sockets
 
 **1. Router Socket**
 
-For each packet (from client) to the Router Socket, the Router will check if
-there is a virtual path for this endpoint or not. If there is no virtual path
-for this endpoint, it will create new virtual path for this end point. Once the
-virtual path is created (or found if existing),the Router ask the Virtual Path
-to process (drop, delay or deliver) the packet to The Main Server Socket
+For each packet (from client) arrives at the Router Socket, the Router will
+check if there is a virtual path for this endpoint or not. If there is no
+virtual path for this endpoint, it will create new virtual path for this end
+point. Once the virtual path is created (or found if existing),the Router ask
+the Virtual Path to process (drop, delay or deliver) the packet to The Main
+Server Socket
 
 **2. Client Socket**
 
@@ -85,10 +87,8 @@ address but users can change.
 **Issues** 
 -----------
 
-Currently,the Router is unable to release the inactive virtual path. However,
-this Router won't be running for a long time, such leaks is still acceptable
-
-
+1.  Currently,the Router is unable to release inactive virtual paths. However,
+    this Router won't be running for a long time, such leaks is still acceptable
 
 
 
