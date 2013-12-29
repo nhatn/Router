@@ -45,7 +45,7 @@ void Router::Start(int localPort, string serverName, int serverPort)THROWS(std::
 			}
 			//Create new connection
 			if(pConn == NULL){
-				LOG_DEBUG << "Client new route" << endl;
+				LOG_DEBUG << "Create new Virtual Path" << endl;
 				pConn = new VirtualPath(&routerSocket,&client_addr,serverAddress.get(),mDropRate,mDelayedRate);
 				connections.push_back(pConn);
 				pConn->Start();

@@ -56,6 +56,7 @@ shared_ptr<Parameter>readParameters(int args, char **argv)
 				para->delayedRate = stof(value);
 				delayProvided = true;
 			}else if(0 == opt.compare("--loglevel")){
+				para->loglevel = log_level_from_desc(value);
 			}
 		}
 	}
@@ -88,12 +89,14 @@ int main(int args, char**argv)
 {
 	WSADATA wsaData;
 
+	shared_ptr<Parameter>parameter = readParameters(args,argv);
+
 	//Setup logger
 	LogManager::SharedManager().SetLogFileName("Router.log");
 	LogManager::SharedManager().SetLogConsole(true); 
-	LogManager::SharedManager().SetLogLevel(LOG_LEVEL_INFO);
+	LogManager::SharedManager().SetLogLevel(parameter->loglevel);
 
-	shared_ptr<Parameter>parameter = readParameters(args,argv);
+	//Initialize socket library
 	WSAStartup(MAKEWORD(2,2), &wsaData);
 	try{
 		char hostname[256] = {'\0'};
@@ -109,6 +112,8 @@ int main(int args, char**argv)
 	}catch(std::exception&e ){
 		LOG_ERROR << "Error: " << e.what() << endl;
 	}
+
+	//Clean socket library
 	WSACleanup();
 	return 0;
 }

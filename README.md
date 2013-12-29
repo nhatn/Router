@@ -92,8 +92,102 @@ address but users can change.
 
 
 
+**Usage**
+---------
+
+### **Router Argument**
+
+You can specific the arguments for Router application. Here is its usage:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Router.exe --routerport 5000 --servername localhost --serverport 5001 --delay 5 --drop 5 --loglevel debug
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With:
+
+-   *routerport *is the port that the router will be listening on
+
+-   *servername *is the host name of the server application
+
+-   *serverport *is the port number of the server application
+
+-   *delay *is the delay percentage
+
+-   *drop *is the drop percentage
+
+-   *loglevel *is either DEBUG, INFO or ERROR
+
+The *servername*, *delay *& *drop *parameters are mandatory, thus if they are
+not provided, you will be asked to provide them through console
 
 
 
+### **Logging**
+
+In order to use the Log facility, you have to following these steps
+
+1.  Include the Log.h & Logstream.h headers to your application
+
+2.  Add the Log.cpp & Logstream.cpp implementation to your application
+
+3.  Configure the Logging System
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    LogManager::SharedManager().SetLogFileName("Router.log")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    The log file that the log will be written to
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    LogManager::SharedManager().SetLogConsole(true)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Show log on console or not
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    LogManager::SharedManager().SetLogLevel(parameter->loglevel); 
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    The log level can be LOG_LEVEL_NONE, LOG_LEVEL_ERROR, LOG_LEVEL_INFO or
+    LOG_LEVEL_DEBUG
+
+    
+
+4.  Using the Macros to log
+
+    -   LOG_DEBUG
+
+    -   LOG_INFO
+
+    -   LOG_ERROR
 
 
+
+### **UDPSocket**
+
+The simple implementation of UDPSocket can be found at UDPSocket.h &
+UDPSocket.cpp. You can use this implementation for any purpose
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bool Bind(int localPort)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bind the UDP Socket to a specific port, so that you can receive packets that
+arrived on that port
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+int Send(const charbuffer,unsigned int sz, SOCKADDR_IN destination)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Send packet to peer (specified by destination address)
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+int Receive(char buffer,unsigned int sz, SOCKADDR_IN sender, int timeout = -1)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Receive packet at the binding port, the sender address is out parameter (will be
+filled out). Time out is in milliseconds

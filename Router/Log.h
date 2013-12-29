@@ -1,6 +1,5 @@
 #pragma once
 #include "LogStream.h"
-
 class LogManager 
 {
 private:
@@ -46,5 +45,7 @@ public:
 #ifndef LOG_ERROR
 #define LOG_ERROR LogManager::SharedManager().errorLogStream << "ERR: " 
 #endif
+
+extern int log_level_from_desc(std::string desc);
 
 
