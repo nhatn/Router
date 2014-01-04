@@ -87,9 +87,7 @@ address but users can change.
 **Issues** 
 -----------
 
-Currently,the Router is unable to release inactive virtual paths. The problem is if there are too many inactive connections (virtual paths), there may not be enough the resource for the new connection.The issue is not related to how long the virtual path will be used but the number of unused connections. 
-However,this Router won't be running for a long time with too many connections, such leaks is still acceptable.
-With current computer resource, the Router will be able to handle at least several thousand virtual paths.
+Currently,the Router is unable to release inactive virtual paths. The problem is if there are too many inactive connections (virtual paths), there may not be enough the resource for the new connection.The issue is not related to how long the virtual path will be used but the number of unused connections.With current computer resource, the Router will be able to handle at least several thousand virtual paths. 
 
 There is no problem if client retries to use its own address. In such case, the existing virtual path will be reused & refreshed.
 
