@@ -87,9 +87,9 @@ address but users can change.
 **Issues** 
 -----------
 
-Currently,the Router is unable to release inactive virtual paths. The problem is if there are too many inactive connections (virtual paths), there may not be enough the resource for the new connection.The issue is not related to how long the virtual path will be used but the number of unused connections.With current computer resource, the Router will be able to handle at least several thousand virtual paths. 
+Currently, the Router is unable to release inactive virtual paths. Thus if there are too many inactive connections (virtual paths), there may not be enough resource for the new connection. The issue is not related to how long the virtual path will be used or its load but the number of unused connections. With current computer resource, the Router will be able to handle at least several thousand virtual paths. 
 
-There is no problem if client retries to use its own address. In such case, the existing virtual path will be reused & refreshed.
+There is NO PROBLEM if client tries to re-use its own address. In such case,the existing virtual path will be reused and refreshed. 
 
 **Usage**
 ---------
@@ -104,19 +104,19 @@ Router.exe --routerport 5000 --servername localhost --serverport 5001 --delay 5 
 
 With:
 
--   *routerport *is the port that the router will be listening on
+-   *routerport* is the port that the router will be listening on
 
--   *servername *is the host name of the server application
+-   *servername* is the host name of the server application
 
--   *serverport *is the port number of the server application
+-   *serverport* is the port number of the server application
 
--   *delay *is the delay percentage
+-   *delay* is the delay percentage
 
--   *drop *is the drop percentage
+-   *drop* is the drop percentage
 
--   *loglevel *is either DEBUG, INFO or ERROR
+-   *loglevel* is either DEBUG, INFO or ERROR
 
-The *servername*, *delay *& *drop *parameters are mandatory, thus if they are
+The *servername*, *delay* and *drop* parameters are mandatory, thus if they are
 not provided, you will be asked to provide them through console
 
 
@@ -125,9 +125,9 @@ not provided, you will be asked to provide them through console
 
 In order to use the Log facility, you have to following these steps
 
-1.  Include the Log.h & Logstream.h headers to your application
+1.  Include the *Log.h* and *Logstream.h* headers to your application
 
-2.  Add the Log.cpp & Logstream.cpp implementation to your application
+2.  Add the *Log.cpp* and *Logstream.cpp* implementation to your application
 
 3.  Configure the Logging System
 
@@ -164,8 +164,8 @@ In order to use the Log facility, you have to following these steps
 
 ### **UDPSocket**
 
-The simple implementation of UDPSocket can be found at UDPSocket.h &
-UDPSocket.cpp. You can use this implementation for any purpose
+The simple implementation of UDPSocket can be found at *UDPSocket.h* and
+*UDPSocket.cpp*. You can use this implementation for any purpose
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 bool Bind(int localPort)
@@ -180,8 +180,7 @@ arrived on that port
 int Send(const charbuffer,unsigned int sz, SOCKADDR_IN destination)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Send packet to peer (specified by destination address)
-
+Send packet to peer which specified by destination address
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
