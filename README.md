@@ -51,7 +51,7 @@ There will be three kinds of socket & the virtual path
 
 
 
-**Communication Flow**
+**Packet Flow**
 ----------------------
 
 **1. Router Socket**
@@ -88,8 +88,9 @@ address but users can change.
 -----------
 
 1.  Currently,the Router is unable to release inactive virtual paths. However,
-    this Router won't be running for a long time, such leaks is still acceptable
-
+    this Router won't be running for a long time with many connections, such leaks is still acceptable.
+    The problem is if there are too many unused connections, there may not be enough the resource for 
+    the new connection.
 
 
 **Usage**
